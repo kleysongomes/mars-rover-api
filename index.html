@@ -2,206 +2,143 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Fotos de Marte</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: 20px auto;
-      padding: 0 10px;
-      background: #f7f7f7;
-      color: #222;
-    }
-    h1 {
-      text-align: center;
-      color: #bb0000;
-    }
-    form {
-      background: white;
-      padding: 15px 20px;
-      border-radius: 6px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
-    select, input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    button {
-      background: #bb0000;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    button:disabled {
-      background: #999;
-      cursor: not-allowed;
-    }
-    #fotos {
-      display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
-      gap: 15px;
-    }
-    .foto {
-      background: white;
-      border-radius: 6px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .foto img {
-      width: 100%;
-      height: auto;
-      display: block;
-      border-bottom: 1px solid #eee;
-    }
-    .info {
-      padding: 10px;
-      font-size: 0.9rem;
-      color: #444;
-    }
-    .info strong {
-      display: block;
-      margin-bottom: 4px;
-      color: #bb0000;
-    }
-    .paginacao {
-      text-align: center;
-      margin: 20px 0;
-    }
-    .paginacao button {
-      margin: 0 5px;
-      padding: 8px 12px;
-      font-size: 1rem;
-    }
-  </style>
+  <title>Explore Marte - API NASA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-900 font-sans">
 
-  <h1>Fotos de Marte - API NASA</h1>
+  <div class="max-w-6xl mx-auto px-4 py-8">
 
-  <form id="marsForm" onsubmit="return false;">
-    <label for="rover">Rover</label>
-    <select id="rover" required>
-      <option value="curiosity">Curiosity</option>
-      <option value="opportunity">Opportunity</option>
-      <option value="spirit">Spirit</option>
-    </select>
+    <h1 class="text-4xl font-bold text-center text-red-700 mb-10 tracking-wide">
+      Explore Fotos de Marte 🚀
+    </h1>
 
-    <label for="sol">Sol (dia marciano)</label>
-    <input type="number" id="sol" min="0" placeholder="1 a 3000+" required />
+    <form id="marsForm" class="grid gap-6 md:grid-cols-3 bg-white p-6 rounded-lg shadow" onsubmit="return false;">
+      <div>
+        <label for="rover" class="block font-medium mb-1">Rover</label>
+        <select id="rover" required class="w-full border rounded px-3 py-2">
+          <option value="curiosity">Curiosity</option>
+          <option value="opportunity">Opportunity</option>
+          <option value="spirit">Spirit</option>
+        </select>
+      </div>
 
-    <label for="camera">Câmera</label>
-    <select id="camera">
-      <option value="">Todas</option>
-      <option value="FHAZ">FHAZ(Câmera de prevenção de riscos frontal)</option>
-      <option value="RHAZ">RHAZ(Câmera de prevenção de riscos traseira)</option>
-      <option value="MAST">MAST(Câmera de mastro)</option>
-      <option value="CHEMCAM">CHEMCAM(Química e Complexo de Câmera)</option>
-      <option value="MAHLI">MAHLI(Imagem de lente de mão de Marte)</option>
-      <option value="MARDI">MARDI(Gerador de Imagens da Descida de Marte)</option>
-      <option value="NAVCAM">NAVCAM(Câmera de navegação)</option>
-      <option value="PANCAM">PANCAM(Câmera panorâmica)</option>
-      <option value="MINITES">MINITES(Espectrômetro de emissão térmica em miniatura')</option>
-    </select>
+      <div>
+        <label for="sol" class="block font-medium mb-1">Sol (dia marciano)</label>
+        <input type="number" id="sol" min="0" placeholder="Ex: 1000" required class="w-full border rounded px-3 py-2" />
+      </div>
 
-    <button id="buscarFotosBtn" type="button">Receber Fotos</button>
-  </form>
+      <div>
+        <label for="camera" class="block font-medium mb-1">Câmera</label>
+        <select id="camera" class="w-full border rounded px-3 py-2">
+          <option value="">Todas</option>
+          <option value="FHAZ">FHAZ (frontal)</option>
+          <option value="RHAZ">RHAZ (traseira)</option>
+          <option value="MAST">MAST (mastro)</option>
+          <option value="CHEMCAM">CHEMCAM (química)</option>
+          <option value="MAHLI">MAHLI (mão)</option>
+          <option value="MARDI">MARDI (descida)</option>
+          <option value="NAVCAM">NAVCAM (navegação)</option>
+          <option value="PANCAM">PANCAM (panorâmica)</option>
+          <option value="MINITES">MINITES (térmica)</option>
+        </select>
+      </div>
 
-  <div class="paginacao" id="paginacao"></div>
-  <div id="fotos"></div>
+      <div class="md:col-span-3 text-right">
+        <button id="buscarFotosBtn" type="button" class="bg-red-600 text-white px-5 py-2 mt-2 rounded hover:bg-red-700 transition">
+          Receber Fotos
+        </button>
+      </div>
+    </form>
 
-<script>
-  const form = document.getElementById('marsForm');
-  const fotosDiv = document.getElementById('fotos');
-  const paginacaoDiv = document.getElementById('paginacao');
-  const buscarFotosBtn = document.getElementById('buscarFotosBtn');
+    <div id="paginacao" class="text-center my-6"></div>
 
-  let paginaAtual = 1;
-  let ultimaConsulta = {};
+    <div id="fotos" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3"></div>
 
-  buscarFotosBtn.addEventListener('click', () => {
-    paginaAtual = 1;
-    ultimaConsulta = {
-      rover: document.getElementById('rover').value,
-      sol: document.getElementById('sol').value,
-      camera: document.getElementById('camera').value
-    };
-    buscarFotos();
-  });
+  </div>
 
-  function montarURL(rover, sol, camera, page) {
-    const params = new URLSearchParams();
-    params.append('rover', rover);
-    params.append('sol', sol);
-    if (camera) params.append('camera', camera);
-    params.append('page', page);
-    return `http://localhost:3000/mars/photos?${params.toString()}`;
-  }
+  <script>
+    const fotosDiv = document.getElementById('fotos');
+    const paginacaoDiv = document.getElementById('paginacao');
+    const buscarFotosBtn = document.getElementById('buscarFotosBtn');
 
-  function buscarFotos() {
-    const { rover, sol, camera } = ultimaConsulta;
-    const url = montarURL(rover, sol, camera, paginaAtual);
+    let paginaAtual = 1;
+    let ultimaConsulta = {};
 
-    fotosDiv.innerHTML = 'Carregando fotos...';
-    paginacaoDiv.innerHTML = '';
+    buscarFotosBtn.addEventListener('click', () => {
+      paginaAtual = 1;
+      ultimaConsulta = {
+        rover: document.getElementById('rover').value,
+        sol: document.getElementById('sol').value,
+        camera: document.getElementById('camera').value
+      };
+      buscarFotos();
+    });
 
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        fotosDiv.innerHTML = '';
-        paginacaoDiv.innerHTML = '';
+    function montarURL(rover, sol, camera, page) {
+      const params = new URLSearchParams();
+      params.append('rover', rover);
+      params.append('sol', sol);
+      if (camera) params.append('camera', camera);
+      params.append('page', page);
+      return `http://localhost:3000/mars/photos?${params.toString()}`;
+    }
 
-        if (!data.resultados || data.total === 0) {
-          fotosDiv.innerHTML = '<p>Nenhuma foto encontrada.</p>';
-          return;
-        }
+    function buscarFotos() {
+      const { rover, sol, camera } = ultimaConsulta;
+      const url = montarURL(rover, sol, camera, paginaAtual);
 
-        data.resultados.forEach(foto => {
-          const div = document.createElement('div');
-          div.className = 'foto';
-          div.innerHTML = `
-            <img src="${foto.img_src}" alt="${foto.camera}" />
-            <div class="info">
-              <strong>${foto.camera}</strong>
-              Data: ${foto.earth_date} <br/>
-              Rover: ${foto.rover} <br/>
-              Em caso de não carregamento da imagem: <a href="${foto.img_src}" target>Clique aqui!</a>
-            </div>
+      fotosDiv.innerHTML = '<p class="text-center text-gray-600">Carregando fotos...</p>';
+      paginacaoDiv.innerHTML = '';
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          fotosDiv.innerHTML = '';
+          paginacaoDiv.innerHTML = '';
+
+          if (!data.resultados || data.total === 0) {
+            fotosDiv.innerHTML = '<p class="text-center text-gray-500">Nenhuma foto encontrada.</p>';
+            return;
+          }
+
+          data.resultados.forEach(foto => {
+            const div = document.createElement('div');
+            div.className = 'bg-white rounded-lg shadow hover:shadow-lg overflow-hidden transition';
+            div.innerHTML = `
+              <img src="${foto.img_src}" alt="${foto.camera}" class="w-full object-cover">
+              <div class="p-4 text-sm text-gray-700">
+                <h2 class="text-red-600 font-bold mb-1">${foto.camera}</h2>
+                <p>Rover: <strong>${foto.rover}</strong></p>
+                <p>Data: ${foto.earth_date}</p>
+                <a href="${foto.img_src}" target="_blank" class="text-blue-600 underline block mt-2">Abrir imagem</a>
+              </div>
+            `;
+            fotosDiv.appendChild(div);
+          });
+
+          paginacaoDiv.innerHTML = `
+            <button onclick="mudarPagina(-1)" ${paginaAtual === 1 ? 'disabled' : ''} class="bg-gray-300 px-3 py-1 rounded mr-2 ${paginaAtual === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-400'}">
+              Anterior
+            </button>
+            <span class="font-semibold">Página ${paginaAtual}</span>
+            <button onclick="mudarPagina(1)" class="bg-gray-300 px-3 py-1 rounded ml-2 hover:bg-gray-400">
+              Próxima
+            </button>
           `;
-          fotosDiv.appendChild(div);
+        })
+        .catch(err => {
+          fotosDiv.innerHTML = `<p class="text-center text-red-600">Erro ao buscar fotos: ${err.message}</p>`;
+          console.error('Erro:', err);
         });
+    }
 
-        paginacaoDiv.innerHTML = `
-          <button onclick="mudarPagina(-1)" ${paginaAtual === 1 ? 'disabled' : ''}>Anterior</button>
-          Página ${paginaAtual}
-          <button onclick="mudarPagina(1)">Próxima</button>
-        `;
-      })
-      .catch((err) => {
-        fotosDiv.innerHTML = `<p style="color:red;">Erro ao buscar fotos: ${err.message}</p>`;
-        console.error('Erro fetch:', err);
-      });
-  }
-
-  function mudarPagina(offset) {
-    paginaAtual += offset;
-    buscarFotos();
-  }
-</script>
+    function mudarPagina(offset) {
+      paginaAtual += offset;
+      buscarFotos();
+    }
+  </script>
 
 </body>
 </html>
