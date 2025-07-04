@@ -1,9 +1,12 @@
 require('dotenv').config();
+const cors = require('cors');
+
 const express = require('express');
 const axios = require('axios');
 const fs = require('fs');
 const { URLSearchParams } = require('url');
 const app = express();
+app.use(cors());
 
 const PORT = 3000;
 const BASE_URL = 'https://api.nasa.gov/mars-photos/api/v1/rovers/';
@@ -30,26 +33,44 @@ app.get('/mars/photos', async (req, res) => {
   const { rover, sol, camera, page = 1, chave_api } = req.query;
   const apiKey = chave_api || process.env.NASA_API_KEY;
 
+  console.log('📥 Requisição recebida em /mars/photos');
+  console.log('🔸 Parâmetros recebidos:', { rover, sol, camera, page });
+
   // Validações
   if (!rover || !validRovers.includes(rover.toLowerCase())) {
+    console.warn('⚠️ Rover inválido ou ausente:', rover);
     return res.status(400).json({ erro: `Parâmetro "rover" é obrigatório e deve ser um dos: ${validRovers.join(', ')}` });
   }
   if (!sol) {
+    console.warn('⚠️ Sol ausente');
     return res.status(400).json({ erro: 'Parâmetro "sol" é obrigatório.' });
   }
   if (camera) {
     const cameraUpper = camera.toUpperCase();
     if (!cameraMap[cameraUpper]) {
+      console.warn('⚠️ Câmera inválida:', camera);
       return res.status(400).json({ erro: `Câmera inválida. Use uma das seguintes: ${Object.keys(cameraMap).join(', ')}` });
     }
     if (!cameraMap[cameraUpper][rover.toLowerCase()]) {
+      console.warn(`⚠️ A câmera "${cameraUpper}" não é compatível com o rover "${rover}"`);
       return res.status(400).json({ erro: `A câmera "${cameraUpper}" não está disponível para o rover "${rover}"` });
     }
   }
 
   try {
+    // Log da URL que será chamada
+    const nasaURL = `${BASE_URL}${rover}/photos`;
+    console.log(`🌐 Chamando API da NASA: ${nasaURL}`);
+    console.log('📤 Com parâmetros:', {
+      data: new Date().toISOString(),
+      rover,
+      sol,
+      camera,
+      page
+    });
+
     // Chamada para API da NASA
-    const response = await axios.get(`${BASE_URL}${rover}/photos`, {
+    const response = await axios.get(nasaURL, {
       params: {
         sol,
         camera,
@@ -66,12 +87,14 @@ app.get('/mars/photos', async (req, res) => {
       rover: foto.rover.name
     }));
 
+    console.log(`✅ ${fotos.length} fotos recebidas da NASA`);
+
     const queryString = new URLSearchParams({
-        rover,
-        sol,
-        ...(camera && { camera }),
-        page,
-        chave_api: 'API_KEY_**************'
+      rover,
+      sol,
+      ...(camera && { camera }),
+      page,
+      chave_api: 'API_KEY_**************'
     }).toString();
 
     const fullURL = `http://localhost:${PORT}/mars/photos?${queryString}`;
@@ -87,15 +110,21 @@ app.get('/mars/photos', async (req, res) => {
       url: fullURL
     });
 
+    console.log(`URL: ${fullURL}`)
+
+    console.log('💾 Consulta registrada com sucesso no arquivo');
+
     res.json({
       total: fotos.length,
       resultados: fotos
     });
 
   } catch (err) {
+    console.error('❌ Erro ao consultar a API da NASA:', err.message);
     res.status(500).json({ erro: 'Erro ao consultar a API da NASA', detalhe: err.message });
   }
 });
+
 
 // ROTA DE CÂMERAS DISPONÍVEIS
 app.get('/mars/cameras', (req, res) => {
